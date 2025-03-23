@@ -4,6 +4,7 @@ import { AddNoteButton } from './AddNoteButton';
 import { AddNoteModal } from './AddNoteModal';
 import { config } from '../config';
 import '../styles/StickyBoard.css';
+import { InfoButton } from './InfoButton';
 
 interface Note {
   id: number;
@@ -264,6 +265,7 @@ export const StickyBoard: React.FC = () => {
       </div>
       
       <AddNoteButton onClick={() => setIsModalOpen(true)} />
+      <InfoButton />
       
       {isModalOpen && (
         <AddNoteModal
