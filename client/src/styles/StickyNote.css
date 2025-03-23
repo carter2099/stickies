@@ -109,4 +109,43 @@
     font-size: 14px;
     padding: 1px 3px;
   }
+}
+
+/* Replace the previous media queries with these */
+
+/* Medium screens (tablets and small laptops) */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .sticky-note {
+    /* Make notes slightly smaller on medium screens */
+    width: 180px;
+    min-height: 180px;
+    /* Add some spacing */
+    margin: 5px;
+    /* Adjust position to account for size change */
+    transform: translate(calc(var(--x) * 1.04), calc(var(--y) * 1.04)) rotate(var(--rotation)) !important;
+  }
+}
+
+/* Large screens (desktops and larger) */
+@media (min-width: 1024px) {
+  .sticky-note {
+    /* Make notes smaller on large screens */
+    width: 170px;
+    min-height: 170px;
+    /* Add more spacing */
+    margin: 10px;
+    /* Adjust position to account for size change */
+    transform: translate(calc(var(--x) * 1.1), calc(var(--y) * 1.1)) rotate(var(--rotation)) !important;
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1440px) {
+  .sticky-note {
+    /* Even smaller notes on very large screens */
+    width: 160px;
+    min-height: 160px;
+    /* Adjust position to account for size change */
+    transform: translate(calc(var(--x) * 1.15), calc(var(--y) * 1.15)) rotate(var(--rotation)) !important;
+  }
 } 

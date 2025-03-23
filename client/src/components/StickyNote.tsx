@@ -179,9 +179,12 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
       ref={noteRef}
       className={`sticky-note ${color} ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''}`}
       style={{
+        '--x': `${position.x}px`,
+        '--y': `${position.y}px`,
+        '--rotation': `${rotation}deg`,
         transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
         zIndex: isDragging ? zIndex + 1000 : isSelected ? zIndex + 500 : zIndex,
-      }}
+      } as React.CSSProperties}
       onClick={handleClick}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
