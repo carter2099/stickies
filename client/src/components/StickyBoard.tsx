@@ -14,6 +14,10 @@ interface Note {
   created_at: string;
 }
 
+// Define a consistent virtual board center point
+const VIRTUAL_BOARD_CENTER_X = 300;
+const VIRTUAL_BOARD_CENTER_Y = 300;
+
 export const StickyBoard: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +29,22 @@ export const StickyBoard: React.FC = () => {
   const [boardPosition, setBoardPosition] = useState({ x: 0, y: 0 });
   const startPanPos = useRef({ x: 0, y: 0 });
   const boardRef = useRef<HTMLDivElement>(null);
+  const boardInitialized = useRef(false);
+
+  // Initialize the board position to center the virtual board
+  const initializeBoardPosition = () => {
+    if (boardInitialized.current) return;
+    
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Calculate the initial position to center the virtual board
+    const initialX = viewportWidth / 2 - VIRTUAL_BOARD_CENTER_X;
+    const initialY = viewportHeight / 2 - VIRTUAL_BOARD_CENTER_Y;
+    
+    setBoardPosition({ x: initialX, y: initialY });
+    boardInitialized.current = true;
+  };
 
   const fetchNotes = async () => {
     try {
@@ -36,6 +56,9 @@ export const StickyBoard: React.FC = () => {
       const data = await response.json();
       setNotes(data);
       setError(null);
+      
+      // Initialize board position after notes are loaded
+      initializeBoardPosition();
     } catch (err) {
       setError('Failed to load sticky notes. Please try again later.');
       console.error('Error fetching notes:', err);
@@ -46,15 +69,31 @@ export const StickyBoard: React.FC = () => {
 
   useEffect(() => {
     fetchNotes();
+    
+    // Handle window resize to maintain center
+    const handleResize = () => {
+      if (boardInitialized.current) {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        // Recalculate position to keep virtual center in viewport center
+        const newX = viewportWidth / 2 - VIRTUAL_BOARD_CENTER_X;
+        const newY = viewportHeight / 2 - VIRTUAL_BOARD_CENTER_Y;
+        
+        setBoardPosition({ x: newX, y: newY });
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const handleAddNote = async (content: string, color: string) => {
     try {
-      // Calculate a default position for new notes
-      // Center of the viewport with a slight random offset
-      // Adjust for the current board position
-      const position_x = window.innerWidth / 2 - 100 + Math.random() * 50 - boardPosition.x;
-      const position_y = window.innerHeight / 2 - 100 + Math.random() * 50 - boardPosition.y;
+      // Calculate position relative to the virtual board center
+      // This ensures notes are placed consistently across devices
+      const position_x = VIRTUAL_BOARD_CENTER_X + Math.random() * 100 - 50;
+      const position_y = VIRTUAL_BOARD_CENTER_Y + Math.random() * 100 - 50;
       
       const response = await fetch(`${config.API_URL}/api/sticky-notes`, {
         method: 'POST',
