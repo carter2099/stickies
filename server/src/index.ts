@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import { db } from './db';
 import { AppError } from './types/errors';
 import { initJob } from './jobs/job';
+import { stickyNoteService } from './services/StickyNoteService';
+import { CreateStickyNoteDto } from './models/StickyNote';
 
 dotenv.config();
 
@@ -13,36 +15,30 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 
-// Start background jobs
+// Start background job
 initJob();
 
-// POST
-app.post('/api/myPost', async (_req: Request, res: Response) => {
+// Sticky Notes API endpoints
+app.get('/api/notes', async (_req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = { success: true, message: "Post successful" };
-        res.json(result);
+        const notes = await stickyNoteService.getAllNotes();
+        res.json(notes);
     } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Post failed' 
-        });
+        next(error);
     }
 });
 
-// GET
-app.get('/api/myGet', async (_req: Request, res: Response) => {
+app.post('/api/notes', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        res.json({ message: "Hello World!" });
+        const noteData: CreateStickyNoteDto = req.body;
+        const newNote = await stickyNoteService.createNote(noteData);
+        res.status(201).json(newNote);
     } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'An error occurred' 
-        });
+        next(error);
     }
 });
 
+// Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({ status: 'ok' });
 });
