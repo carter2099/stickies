@@ -11,6 +11,8 @@ interface StickyNoteProps {
   onPositionUpdate: (id: number, x: number, y: number) => void;
   onNoteMouseDown?: (e: React.MouseEvent) => void;
   onNoteTouchStart?: (e: React.TouchEvent) => void;
+  onNoteSelect?: (id: number) => void;
+  zIndex: number;
 }
 
 // Maximum character count to display
@@ -24,7 +26,9 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
   position_y,
   onPositionUpdate,
   onNoteMouseDown,
-  onNoteTouchStart
+  onNoteTouchStart,
+  onNoteSelect,
+  zIndex
 }) => {
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -44,8 +48,14 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
     // Only toggle selection if it's a simple click (not the end of a drag)
     if (!isDragging && wasClickedRef.current) {
       e.stopPropagation();
-      setIsSelected(!isSelected);
+      const newSelectedState = !isSelected;
+      setIsSelected(newSelectedState);
       wasClickedRef.current = false;
+      
+      // Notify parent component that this note was selected
+      if (newSelectedState && onNoteSelect) {
+        onNoteSelect(id);
+      }
     }
   };
 
@@ -170,6 +180,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
       className={`sticky-note ${color} ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''}`}
       style={{
         transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
+        zIndex: isDragging ? zIndex + 1000 : isSelected ? zIndex + 500 : zIndex,
       }}
       onClick={handleClick}
       onMouseDown={handleMouseDown}

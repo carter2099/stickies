@@ -13,11 +13,15 @@ interface Note {
   position_x: number;
   position_y: number;
   created_at: string;
+  zIndex?: number; // Add zIndex property
 }
 
 // Define a consistent virtual board center point
 const VIRTUAL_BOARD_CENTER_X = 650;
 const VIRTUAL_BOARD_CENTER_Y = 300;
+
+// Base z-index for notes
+const BASE_Z_INDEX = 1;
 
 export const StickyBoard: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -31,6 +35,9 @@ export const StickyBoard: React.FC = () => {
   const startPanPos = useRef({ x: 0, y: 0 });
   const boardRef = useRef<HTMLDivElement>(null);
   const boardInitialized = useRef(false);
+  
+  // Track the highest z-index used
+  const highestZIndexRef = useRef(BASE_Z_INDEX);
 
   // Initialize the board position to center the virtual board
   const initializeBoardPosition = () => {
@@ -55,7 +62,17 @@ export const StickyBoard: React.FC = () => {
         throw new Error('Failed to fetch notes');
       }
       const data = await response.json();
-      setNotes(data);
+      
+      // Initialize z-index for each note
+      const notesWithZIndex = data.map((note: Note, index: number) => ({
+        ...note,
+        zIndex: BASE_Z_INDEX + index
+      }));
+      
+      // Update highest z-index
+      highestZIndexRef.current = BASE_Z_INDEX + data.length;
+      
+      setNotes(notesWithZIndex);
       setError(null);
       
       // Initialize board position after notes are loaded
@@ -114,7 +131,15 @@ export const StickyBoard: React.FC = () => {
       }
       
       const newNote = await response.json();
-      setNotes([newNote, ...notes]);
+      
+      // Increment highest z-index and assign to new note
+      highestZIndexRef.current += 1;
+      const newNoteWithZIndex = {
+        ...newNote,
+        zIndex: highestZIndexRef.current
+      };
+      
+      setNotes([newNoteWithZIndex, ...notes]);
       setIsModalOpen(false);
     } catch (err) {
       setError('Failed to add note. Please try again.');
@@ -148,15 +173,11 @@ export const StickyBoard: React.FC = () => {
 
   // Board panning handlers
   const handleBoardMouseDown = (e: React.MouseEvent) => {
-    // Remove the check for sticky notes since we're now explicitly calling this
-    // from both the board and unselected notes
     setIsPanning(true);
     startPanPos.current = { x: e.clientX, y: e.clientY };
   };
 
   const handleBoardTouchStart = (e: React.TouchEvent) => {
-    // Remove the check for sticky notes since we're now explicitly calling this
-    // from both the board and unselected notes
     setIsPanning(true);
     const touch = e.touches[0];
     startPanPos.current = { x: touch.clientX, y: touch.clientY };
@@ -224,6 +245,21 @@ export const StickyBoard: React.FC = () => {
     }));
   };
 
+  // Handle note selection - bring to front
+  const handleNoteSelect = (id: number) => {
+    // Increment highest z-index
+    highestZIndexRef.current += 1;
+    
+    // Update the z-index of the selected note
+    setNotes(prevNotes => 
+      prevNotes.map(note => 
+        note.id === id 
+          ? { ...note, zIndex: highestZIndexRef.current } 
+          : note
+      )
+    );
+  };
+
   return (
     <div 
       ref={boardRef}
@@ -258,6 +294,8 @@ export const StickyBoard: React.FC = () => {
                 onPositionUpdate={handlePositionUpdate}
                 onNoteMouseDown={handleBoardMouseDown}
                 onNoteTouchStart={handleBoardTouchStart}
+                onNoteSelect={handleNoteSelect}
+                zIndex={note.zIndex || BASE_Z_INDEX}
               />
             ))}
           </>

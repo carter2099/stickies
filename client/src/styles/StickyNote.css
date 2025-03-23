@@ -23,6 +23,18 @@
   opacity: 0.9;
 }
 
+.sticky-note.top-note {
+  z-index: 5; /* Higher than regular notes but lower than selected/dragging */
+}
+
+.sticky-note.top-note.selected {
+  z-index: 15; /* Higher than regular selected notes */
+}
+
+.sticky-note.top-note.dragging {
+  z-index: 105; /* Higher than regular dragging notes */
+}
+
 .sticky-note-content {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 16px;
