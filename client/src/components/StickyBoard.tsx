@@ -15,7 +15,7 @@ interface Note {
 }
 
 // Define a consistent virtual board center point
-const VIRTUAL_BOARD_CENTER_X = 300;
+const VIRTUAL_BOARD_CENTER_X = 650;
 const VIRTUAL_BOARD_CENTER_Y = 300;
 
 export const StickyBoard: React.FC = () => {
