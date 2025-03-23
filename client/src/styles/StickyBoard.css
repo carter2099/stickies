@@ -9,6 +9,20 @@
                     linear-gradient(90deg, #e5e5e5 1px, transparent 1px);
   background-size: 20px 20px;
   overflow: hidden;
+  cursor: default;
+}
+
+.sticky-board.panning {
+  cursor: grab;
+}
+
+.board-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
 }
 
 .loading, .error {
@@ -24,4 +38,57 @@
 .error {
   color: #d32f2f;
   max-width: 80%;
+}
+
+/* Add a mini-map for navigation */
+.board-minimap {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 150px;
+  height: 100px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  z-index: 900;
+  display: none; /* Hidden by default, can be toggled */
+}
+
+/* Add zoom controls */
+.zoom-controls {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 900;
+}
+
+.zoom-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: white;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .zoom-controls {
+    bottom: 20px;
+    left: 20px;
+  }
+  
+  .zoom-button {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
 } 

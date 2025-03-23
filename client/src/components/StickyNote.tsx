@@ -26,6 +26,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
   const initialPos = useRef({ x: 0, y: 0 });
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent board panning when dragging a note
     setIsDragging(true);
     dragStartPos.current = { x: e.clientX, y: e.clientY };
     initialPos.current = { x: position.x, y: position.y };
@@ -35,6 +36,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation(); // Prevent board panning when dragging a note
     setIsDragging(true);
     const touch = e.touches[0];
     dragStartPos.current = { x: touch.clientX, y: touch.clientY };
