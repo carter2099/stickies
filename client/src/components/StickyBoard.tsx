@@ -13,7 +13,8 @@ interface Note {
   position_x: number;
   position_y: number;
   created_at: string;
-  zIndex?: number; // Add zIndex property
+  zIndex?: number; // Client-side z-index property
+  z_index?: number; // Database z_index property
 }
 
 // Define a consistent virtual board center point
@@ -63,14 +64,18 @@ export const StickyBoard: React.FC = () => {
       }
       const data = await response.json();
       
-      // Initialize z-index for each note
+      // Use z_index from database if available, otherwise assign new ones
       const notesWithZIndex = data.map((note: Note, index: number) => ({
         ...note,
-        zIndex: BASE_Z_INDEX + index
+        zIndex: note.z_index !== null ? note.z_index : BASE_Z_INDEX + index
       }));
       
-      // Update highest z-index
-      highestZIndexRef.current = BASE_Z_INDEX + data.length;
+      // Update highest z-index based on the highest value in the data
+      const maxZIndex = Math.max(
+        ...notesWithZIndex.map((note: Note) => note.zIndex || 0),
+        BASE_Z_INDEX
+      );
+      highestZIndexRef.current = maxZIndex;
       
       setNotes(notesWithZIndex);
       setError(null);
@@ -246,18 +251,39 @@ export const StickyBoard: React.FC = () => {
   };
 
   // Handle note selection - bring to front
-  const handleNoteSelect = (id: number) => {
+  const handleNoteSelect = async (id: number) => {
     // Increment highest z-index
     highestZIndexRef.current += 1;
+    const newZIndex = highestZIndexRef.current;
     
-    // Update the z-index of the selected note
+    // Update the z-index of the selected note in state
     setNotes(prevNotes => 
       prevNotes.map(note => 
         note.id === id 
-          ? { ...note, zIndex: highestZIndexRef.current } 
+          ? { ...note, zIndex: newZIndex } 
           : note
       )
     );
+    
+    // Persist the z-index change to the server
+    try {
+      const response = await fetch(`${config.API_URL}/api/sticky-notes/${id}/z-index`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          z_index: newZIndex,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update note z-index');
+      }
+    } catch (err) {
+      console.error('Error updating note z-index:', err);
+      // We could show an error toast here, but for now just log it
+    }
   };
 
   return (

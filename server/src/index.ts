@@ -89,6 +89,42 @@ app.patch('/api/sticky-notes/:id/position', async (req: Request, res: Response) 
     }
 });
 
+// Update sticky note z-index
+app.patch('/api/sticky-notes/:id/z-index', async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { z_index } = req.body;
+        
+        if (z_index === undefined) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing z_index value' 
+            });
+        }
+        
+        // Update the z-index in the database
+        const result = await db.updateStickyNoteZIndex(id, z_index);
+        
+        if (!result) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Sticky note not found' 
+            });
+        }
+        
+        res.json({ 
+            success: true, 
+            message: 'Z-index updated successfully' 
+        });
+    } catch (error) {
+        console.error('Error updating sticky note z-index:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to update sticky note z-index' 
+        });
+    }
+});
+
 // POST
 app.post('/api/myPost', async (_req: Request, res: Response) => {
     try {

@@ -53,6 +53,14 @@ export class Database {
         );
         return result.rows[0] || null;
     }
+
+    async updateStickyNoteZIndex(id: number, z_index: number): Promise<StickyNote | null> {
+        const result = await this.query(
+            'UPDATE sticky_notes SET z_index = $1 WHERE id = $2 RETURNING *',
+            [z_index, id]
+        );
+        return result.rows[0] || null;
+    }
 }
 
 export const db = new Database(); 
