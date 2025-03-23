@@ -3,7 +3,7 @@
   width: 200px;
   min-height: 200px;
   padding: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.15);
   border-radius: 2px;
   cursor: pointer;
   user-select: none;
@@ -12,14 +12,14 @@
 }
 
 .sticky-note.selected {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 3px 7px 12px rgba(0, 0, 0, 0.2);
   z-index: 10;
   outline: 2px solid rgba(0, 0, 0, 0.2);
 }
 
 .sticky-note.dragging {
   z-index: 100;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 5px 10px 16px rgba(0, 0, 0, 0.2);
   opacity: 0.9;
 }
 
@@ -29,6 +29,8 @@
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+  /* Add a handwritten-like font if available */
+  font-family: 'Comic Sans MS', 'Marker Felt', cursive, sans-serif;
 }
 
 .sticky-note-controls {
@@ -53,30 +55,35 @@
   color: rgba(0, 0, 0, 0.8);
 }
 
-/* Sticky note colors */
+/* Sticky note colors with more realistic shading */
 .sticky-note.yellow {
   background-color: #fff9c4;
   border-bottom: 1px solid #fbc02d;
+  box-shadow: 2px 5px 10px rgba(251, 192, 45, 0.2);
 }
 
 .sticky-note.green {
   background-color: #dcedc8;
   border-bottom: 1px solid #7cb342;
+  box-shadow: 2px 5px 10px rgba(124, 179, 66, 0.2);
 }
 
 .sticky-note.blue {
   background-color: #bbdefb;
   border-bottom: 1px solid #1e88e5;
+  box-shadow: 2px 5px 10px rgba(30, 136, 229, 0.2);
 }
 
 .sticky-note.pink {
   background-color: #f8bbd0;
   border-bottom: 1px solid #ec407a;
+  box-shadow: 2px 5px 10px rgba(236, 64, 122, 0.2);
 }
 
 .sticky-note.purple {
   background-color: #e1bee7;
   border-bottom: 1px solid #8e24aa;
+  box-shadow: 2px 5px 10px rgba(142, 36, 170, 0.2);
 }
 
 @media (max-width: 768px) {

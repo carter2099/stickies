@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { config } from '../config';
 import '../styles/StickyNote.css';
 
@@ -26,6 +26,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: position_x, y: position_y });
+  const [rotation] = useState(() => Math.random() * 6 - 3); // Random rotation between -3 and 3 degrees
   const noteRef = useRef<HTMLDivElement>(null);
   const dragStartPos = useRef({ x: 0, y: 0 });
   const initialPos = useRef({ x: 0, y: 0 });
@@ -160,7 +161,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
       ref={noteRef}
       className={`sticky-note ${color} ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''}`}
       style={{
-        transform: `translate(${position.x}px, ${position.y}px)`,
+        transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
       }}
       onClick={handleClick}
       onMouseDown={handleMouseDown}
