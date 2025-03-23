@@ -6,6 +6,9 @@ interface AddNoteModalProps {
   onClose: () => void;
 }
 
+// Set a maximum character count for sticky notes
+const MAX_CHAR_COUNT = 120;
+
 export const AddNoteModal: React.FC<AddNoteModalProps> = ({ onAdd, onClose }) => {
   const [content, setContent] = useState('');
   const [color, setColor] = useState('yellow');
@@ -17,6 +20,14 @@ export const AddNoteModal: React.FC<AddNoteModalProps> = ({ onAdd, onClose }) =>
     }
   };
 
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value;
+    // Limit the content to the maximum character count
+    if (newContent.length <= MAX_CHAR_COUNT) {
+      setContent(newContent);
+    }
+  };
+
   const colors = [
     { id: 'yellow', name: 'Yellow' },
     { id: 'green', name: 'Green' },
@@ -24,6 +35,8 @@ export const AddNoteModal: React.FC<AddNoteModalProps> = ({ onAdd, onClose }) =>
     { id: 'pink', name: 'Pink' },
     { id: 'purple', name: 'Purple' }
   ];
+
+  const remainingChars = MAX_CHAR_COUNT - content.length;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -35,11 +48,14 @@ export const AddNoteModal: React.FC<AddNoteModalProps> = ({ onAdd, onClose }) =>
             <textarea
               id="note-content"
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={handleContentChange}
               placeholder="Write your note here..."
               rows={4}
               required
             />
+            <div className="char-counter">
+              {remainingChars} characters remaining
+            </div>
           </div>
           
           <div className="form-group">
@@ -60,7 +76,7 @@ export const AddNoteModal: React.FC<AddNoteModalProps> = ({ onAdd, onClose }) =>
             <button type="button" className="cancel-button" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="add-button">
+            <button type="submit" className="add-button" disabled={content.trim().length === 0}>
               Add Note
             </button>
           </div>

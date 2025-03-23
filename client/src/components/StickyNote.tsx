@@ -13,6 +13,9 @@ interface StickyNoteProps {
   onNoteTouchStart?: (e: React.TouchEvent) => void;
 }
 
+// Maximum character count to display
+const MAX_DISPLAY_CHARS = 120;
+
 export const StickyNote: React.FC<StickyNoteProps> = ({ 
   id, 
   content, 
@@ -31,6 +34,11 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
   const dragStartPos = useRef({ x: 0, y: 0 });
   const initialPos = useRef({ x: 0, y: 0 });
   const wasClickedRef = useRef(false);
+
+  // Truncate content if it exceeds the maximum display length
+  const displayContent = content.length > MAX_DISPLAY_CHARS 
+    ? content.substring(0, MAX_DISPLAY_CHARS)
+    : content;
 
   const handleClick = (e: React.MouseEvent) => {
     // Only toggle selection if it's a simple click (not the end of a drag)
@@ -168,7 +176,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
       onTouchStart={handleTouchStart}
     >
       <div className="sticky-note-content">
-        {content}
+        {displayContent}
       </div>
       {isSelected && (
         <div className="sticky-note-controls">

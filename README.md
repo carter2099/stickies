@@ -1,3 +1,1 @@
-Postgres / React / Express / TypeScript / Docker 
-
-Template
+stickies.carter2099.com
