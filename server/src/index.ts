@@ -4,8 +4,6 @@ import dotenv from 'dotenv';
 import { db } from './db';
 import { AppError } from './types/errors';
 import { initJob } from './jobs/job';
-import { stickyNoteService } from './services/StickyNoteService';
-import { CreateStickyNoteDto } from './models/StickyNote';
 
 dotenv.config();
 
@@ -15,30 +13,109 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 
-// Start background job
+// Start background jobs
 initJob();
 
-// Sticky Notes API endpoints
-app.get('/api/notes', async (_req: Request, res: Response, next: NextFunction) => {
+// Sticky Notes API
+app.get('/api/sticky-notes', async (_req: Request, res: Response) => {
     try {
-        const notes = await stickyNoteService.getAllNotes();
+        const notes = await db.getAllStickyNotes();
         res.json(notes);
     } catch (error) {
-        next(error);
+        console.error('Error fetching sticky notes:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to fetch sticky notes' 
+        });
     }
 });
 
-app.post('/api/notes', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/sticky-notes', async (req: Request, res: Response) => {
     try {
-        const noteData: CreateStickyNoteDto = req.body;
-        const newNote = await stickyNoteService.createNote(noteData);
+        const { content, color, position_x, position_y } = req.body;
+        
+        if (!content || !color || position_x === undefined || position_y === undefined) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing required fields' 
+            });
+        }
+        
+        const newNote = await db.createStickyNote({
+            content,
+            color,
+            position_x,
+            position_y
+        });
+        
         res.status(201).json(newNote);
     } catch (error) {
-        next(error);
+        console.error('Error creating sticky note:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to create sticky note' 
+        });
     }
 });
 
-// Health check endpoint
+app.patch('/api/sticky-notes/:id/position', async (req: Request, res: Response) => {
+    try {
+        const id = parseInt(req.params.id);
+        const { position_x, position_y } = req.body;
+        
+        if (position_x === undefined || position_y === undefined) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing position coordinates' 
+            });
+        }
+        
+        const updatedNote = await db.updateStickyNotePosition(id, position_x, position_y);
+        
+        if (!updatedNote) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Sticky note not found' 
+            });
+        }
+        
+        res.json(updatedNote);
+    } catch (error) {
+        console.error('Error updating sticky note position:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to update sticky note position' 
+        });
+    }
+});
+
+// POST
+app.post('/api/myPost', async (_req: Request, res: Response) => {
+    try {
+        const result = { success: true, message: "Post successful" };
+        res.json(result);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Post failed' 
+        });
+    }
+});
+
+// GET
+app.get('/api/myGet', async (_req: Request, res: Response) => {
+    try {
+        res.json({ message: "Hello World!" });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred' 
+        });
+    }
+});
+
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({ status: 'ok' });
 });
