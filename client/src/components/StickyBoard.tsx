@@ -147,21 +147,15 @@ export const StickyBoard: React.FC = () => {
 
   // Board panning handlers
   const handleBoardMouseDown = (e: React.MouseEvent) => {
-    // Only start panning if not clicking on a sticky note
-    if ((e.target as HTMLElement).closest('.sticky-note')) {
-      return;
-    }
-    
+    // Remove the check for sticky notes since we're now explicitly calling this
+    // from both the board and unselected notes
     setIsPanning(true);
     startPanPos.current = { x: e.clientX, y: e.clientY };
   };
 
   const handleBoardTouchStart = (e: React.TouchEvent) => {
-    // Only start panning if not touching a sticky note
-    if ((e.target as HTMLElement).closest('.sticky-note')) {
-      return;
-    }
-    
+    // Remove the check for sticky notes since we're now explicitly calling this
+    // from both the board and unselected notes
     setIsPanning(true);
     const touch = e.touches[0];
     startPanPos.current = { x: touch.clientX, y: touch.clientY };
@@ -261,6 +255,8 @@ export const StickyBoard: React.FC = () => {
                 position_x={note.position_x}
                 position_y={note.position_y}
                 onPositionUpdate={handlePositionUpdate}
+                onNoteMouseDown={handleBoardMouseDown}
+                onNoteTouchStart={handleBoardTouchStart}
               />
             ))}
           </>
